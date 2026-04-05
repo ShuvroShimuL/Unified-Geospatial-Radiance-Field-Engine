@@ -42,10 +42,10 @@ export async function initViewer(containerId) {
 
   // Init 3D Tiles (OSM Buildings)
   try {
-    const osmBuildings = await Cesium.Cesium3DTileset.fromIonAssetId(96188);
+    const osmBuildings = await Cesium.createOsmBuildingsAsync();
     viewer.scene.primitives.add(osmBuildings);
   } catch (error) {
-    console.warn('Failed to load OSM Buildings via Asset ID.', error);
+    console.warn('Failed to load OSM Buildings.', error);
   }
 
   // Google Photorealistic 3D Tiles require a specific Google Maps API key in addition to the Cesium Ion token.

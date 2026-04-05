@@ -18,12 +18,17 @@ async function bootstrap() {
   // Test Authentication (hardcoded logic matching Phase 3 .env spec)
   try {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+    // Explicitly read Vite env vars without relying solely on OR fallbacks if Vercel sets them to empty string
+    const uname = import.meta.env.VITE_TEST_USERNAME ? import.meta.env.VITE_TEST_USERNAME : 'admin';
+    const pwd = import.meta.env.VITE_TEST_PASSWORD ? import.meta.env.VITE_TEST_PASSWORD : 'changeme';
+
     const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        username: import.meta.env.VITE_TEST_USERNAME || 'admin',
-        password: import.meta.env.VITE_TEST_PASSWORD || 'changeme'
+        username: uname,
+        password: pwd
       })
     });
 
@@ -111,22 +116,40 @@ async function bootstrap() {
   let nightImagery = null;
 
   if (layerToggleBtn) {
-    layerToggleBtn.addEventListener('click', () => {
+    layerToggleBtn.addEventListener('click', async () => {
       isNightMode = !isNightMode;
       if (isNightMode) {
         if (!nightImagery) {
-          nightImagery = new Cesium.ImageryLayer(new Cesium.IonImageryProvider({ assetId: 3812 })); // Cesium ion CartoDB Dark Matter
+          // Use OpenStreetMap dark style (CartoDB Dark Matter)
+          const provider = await Cesium.IonImageryProvider.fromAssetId(3812);
+          nightImagery = new Cesium.ImageryLayer(provider);
           viewer.imageryLayers.add(nightImagery);
         }
         nightImagery.show = true;
         if (defaultImagery) defaultImagery.show = false;
 
-        layerToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:white;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        layerToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
       } else {
         if (nightImagery) nightImagery.show = false;
         if (defaultImagery) defaultImagery.show = true;
 
-        layerToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:white;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        layerToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      }
+    });
+  }
+
+  // Setup 2D/3D Mode Toggle
+  const modeToggleBtn = document.getElementById('mode-toggle');
+  let is3DMode = true;
+  if (modeToggleBtn) {
+    modeToggleBtn.addEventListener('click', () => {
+      is3DMode = !is3DMode;
+      if (is3DMode) {
+        viewer.scene.morphTo3D();
+        modeToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
+      } else {
+        viewer.scene.morphTo2D();
+        modeToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
       }
     });
   }

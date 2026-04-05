@@ -100,18 +100,25 @@
       background: rgba(255, 255, 255, 0.2);
     }
 
-    #compass-container {
+    /* Stacked Control Icons Container - Replacing direct absolute positioning */
+    #controls-stack {
       position: absolute;
       top: 20px;
       right: 20px;
       z-index: 10;
-      width: 48px;
-      height: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-icon-btn {
+      width: 40px;
+      height: 40px;
       background: rgba(15, 15, 20, 0.7);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
+      border-radius: 8px; /* Rounded rectangles to match cesium styling or user preference */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -121,43 +128,26 @@
       transition: background 0.2s;
     }
 
-    #compass-container:hover {
+    .control-icon-btn:hover {
       background: rgba(25, 25, 30, 0.9);
+    }
+
+    .control-icon-btn svg {
+      width: 20px;
+      height: 20px;
+      color: white;
     }
 
     #compass-icon {
-      width: 24px;
-      height: 24px;
-      color: white;
       transition: transform 0.1s;
     }
 
-    #layer-toggle {
-      position: absolute;
-      top: 80px;
-      right: 20px;
-      z-index: 10;
-      width: 48px;
-      height: 48px;
-      background: rgba(15, 15, 20, 0.7);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      cursor: pointer;
-      pointer-events: auto;
-      transition: background 0.2s;
+    /* Overriding default Cesium UI elements */
+    .cesium-viewer-toolbar {
+      top: 20px !important;
+      right: 70px !important; /* Move toolbar to left of the custom stack */
     }
 
-    #layer-toggle:hover {
-      background: rgba(25, 25, 30, 0.9);
-    }
-
-    /* Hide default Cesium UI elements and watermark */
     .cesium-viewer-bottom {
       display: none !important;
     }
@@ -168,16 +158,17 @@
       bottom: 0;
       left: 0;
       width: 100%;
+      box-sizing: border-box;
       background: rgba(10, 10, 15, 0.85);
       backdrop-filter: blur(5px);
       -webkit-backdrop-filter: blur(5px);
       color: rgba(255, 255, 255, 0.6);
       font-size: 11px;
-      padding: 4px 10px;
+      padding: 8px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 5;
+      z-index: 2000;
       pointer-events: none;
     }
     #custom-attribution a {
@@ -215,17 +206,27 @@
     </button>
   </div>
 
-  <div id="compass-container" title="Reset North">
-    <svg id="compass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="12 2 15.5 12 12 22 8.5 12 12 2" fill="currentColor"></polygon>
-      <polygon points="12 2 12 22 8.5 12 12 2" fill="rgba(255,255,255,0.5)"></polygon>
-    </svg>
-  </div>
+  <div id="controls-stack">
+    <div id="compass-container" class="control-icon-btn" title="Reset North">
+      <svg id="compass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.5 12 12 22 8.5 12 12 2" fill="currentColor"></polygon>
+        <polygon points="12 2 12 22 8.5 12 12 2" fill="rgba(255,255,255,0.5)"></polygon>
+      </svg>
+    </div>
 
-  <div id="layer-toggle" title="Toggle Base Layer">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:white;">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-    </svg>
+    <div id="layer-toggle" class="control-icon-btn" title="Toggle Base Layer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </div>
+
+    <div id="mode-toggle" class="control-icon-btn" title="Toggle 2D/3D Mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="9" y1="21" x2="9" y2="9"></line>
+      </svg>
+    </div>
   </div>
 
   <div id="custom-attribution">
