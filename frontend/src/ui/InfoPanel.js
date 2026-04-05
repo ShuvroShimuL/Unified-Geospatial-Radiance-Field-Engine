@@ -8,7 +8,21 @@ export class InfoPanel {
     }
 
     this.applyStyles();
-    this.hide();
+    this.showDefault();
+  }
+
+  showDefault() {
+    this.container.style.display = 'flex';
+    this.container.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 5px;">
+        <h3 style="margin: 0; font-size: 16px;">Spatial Intelligence</h3>
+        <button id="closeInfoPanel" style="background: none; border: none; color: #fff; cursor: pointer; font-size: 16px;">&times;</button>
+      </div>
+      <div style="padding: 10px 0;">
+        Click anywhere on the map to query the Spatial RAG engine.
+      </div>
+    `;
+    this.bindCloseButton();
   }
 
   applyStyles() {

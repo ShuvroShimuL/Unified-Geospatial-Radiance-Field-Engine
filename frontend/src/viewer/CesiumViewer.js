@@ -18,15 +18,18 @@ export async function initViewer(containerId) {
     terrainProvider: undefined, // Will be set manually below
     animation: false,
     timeline: false,
-    navigationHelpButton: false,
+    navigationHelpButton: true,
     baseLayerPicker: false,
     geocoder: false,
-    homeButton: false,
+    homeButton: true,
     sceneModePicker: false,
-    fullscreenButton: false,
+    fullscreenButton: true,
     infoBox: false,
     selectionIndicator: false
   });
+
+  // Enable depth testing against terrain
+  viewer.scene.globe.depthTestAgainstTerrain = true;
 
   // Init terrain with fallback
   try {
@@ -39,10 +42,10 @@ export async function initViewer(containerId) {
 
   // Init 3D Tiles (OSM Buildings)
   try {
-    const osmBuildings = await Cesium.createOsmBuildingsAsync();
+    const osmBuildings = await Cesium.Cesium3DTileset.fromIonAssetId(96188);
     viewer.scene.primitives.add(osmBuildings);
   } catch (error) {
-    console.warn('Failed to load OSM Buildings.', error);
+    console.warn('Failed to load OSM Buildings via Asset ID.', error);
   }
 
   // Google Photorealistic 3D Tiles require a specific Google Maps API key in addition to the Cesium Ion token.
@@ -57,7 +60,12 @@ export async function initViewer(containerId) {
 
   // Initial camera position (optional, let's look at Dhaka for the seed data)
   viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 5000.0),
+    destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 2000.0),
+    orientation: {
+      heading: 0.0,
+      pitch: Cesium.Math.toRadians(-45.0),
+      roll: 0.0
+    },
     duration: 0 // Instant jump
   });
 
