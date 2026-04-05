@@ -134,6 +134,10 @@ export class InfoPanel {
     setTimeout(() => {
       this.container.style.display = 'none';
     }, 300);
+    if (this.currentClickEntity && this.viewer) {
+      this.viewer.entities.remove(this.currentClickEntity);
+      this.currentClickEntity = null;
+    }
   }
 
   bindCloseButton() {

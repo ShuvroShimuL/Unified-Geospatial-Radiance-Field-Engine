@@ -29,7 +29,16 @@ export async function initViewer(containerId) {
   });
 
   // Enable depth testing against terrain
-  viewer.scene.globe.depthTestAgainstTerrain = true;
+  viewer.scene.globe.depthTestAgainstTerrain = false;
+
+  // Enhance visuals
+  viewer.scene.skyAtmosphere.show = true;
+  viewer.scene.fog.enabled = true;
+  viewer.scene.fog.density = 0.0002;
+  viewer.scene.msaaSamples = 4;
+  viewer.scene.fxaa = true;
+  viewer.resolutionScale = window.devicePixelRatio;
+  viewer.scene.globe.enableLighting = true;
 
   // Init terrain with fallback
   try {
@@ -43,6 +52,9 @@ export async function initViewer(containerId) {
   // Init 3D Tiles (OSM Buildings)
   try {
     const osmBuildings = await Cesium.createOsmBuildingsAsync();
+    osmBuildings.style = new Cesium.Cesium3DTileStyle({
+      color: "color('#e8e0d0')"
+    });
     viewer.scene.primitives.add(osmBuildings);
   } catch (error) {
     console.warn('Failed to load OSM Buildings.', error);
@@ -70,7 +82,7 @@ export async function initViewer(containerId) {
 
   // Smooth 3-second fly-in to Dhaka
   viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 2000.0),
+    destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 800.0),
     orientation: {
       heading: 0.0,
       pitch: Cesium.Math.toRadians(-45.0),

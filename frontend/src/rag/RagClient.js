@@ -10,7 +10,24 @@ export class RagClient {
 
   async query(lat, lon, queryText) {
     if (!this.token) {
-      throw new Error('Not authenticated');
+      // Hardcode fallback as requested
+      const username = import.meta.env.VITE_TEST_USERNAME ?? 'admin';
+      const password = import.meta.env.VITE_TEST_PASSWORD ?? 'changeme';
+      try {
+        const loginRes = await fetch(`${this.baseUrl}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (loginRes.ok) {
+          const { token } = await loginRes.json();
+          this.setToken(token);
+        } else {
+          throw new Error('Fallback authentication failed');
+        }
+      } catch (e) {
+        throw new Error('Not authenticated and fallback failed: ' + e.message);
+      }
     }
 
     const response = await fetch(`${this.baseUrl}/api/rag`, {
