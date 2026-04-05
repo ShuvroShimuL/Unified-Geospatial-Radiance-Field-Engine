@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+asyncpg
+python-jose[cryptography]
+passlib[bcrypt]
+openai
+langchain
+langchain-openai
+upstash-redis
+boto3
+python-dotenv
