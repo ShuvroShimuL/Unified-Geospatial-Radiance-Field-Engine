@@ -58,7 +58,17 @@ export async function initViewer(containerId) {
   //    }
   // }
 
-  // Initial camera position (optional, let's look at Dhaka for the seed data)
+  // Set initial far camera position (space)
+  viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 10000000.0),
+    orientation: {
+      heading: 0.0,
+      pitch: Cesium.Math.toRadians(-90.0),
+      roll: 0.0
+    }
+  });
+
+  // Smooth 3-second fly-in to Dhaka
   viewer.camera.flyTo({
     destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 2000.0),
     orientation: {
@@ -66,7 +76,8 @@ export async function initViewer(containerId) {
       pitch: Cesium.Math.toRadians(-45.0),
       roll: 0.0
     },
-    duration: 0 // Instant jump
+    duration: 3.0,
+    easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT
   });
 
   return viewer;

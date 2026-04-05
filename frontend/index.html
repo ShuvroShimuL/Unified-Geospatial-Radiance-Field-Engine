@@ -11,11 +11,228 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #app-header {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(15, 15, 20, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #app-header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    #coords-display {
+      font-size: 12px;
+      font-family: monospace;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    #search-container {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      background: rgba(15, 15, 20, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    #location-search {
+      background: transparent;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+      width: 250px;
+      outline: none;
+    }
+
+    #location-search::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    #search-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #search-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #compass-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      width: 48px;
+      height: 48px;
+      background: rgba(15, 15, 20, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: background 0.2s;
+    }
+
+    #compass-container:hover {
+      background: rgba(25, 25, 30, 0.9);
+    }
+
+    #compass-icon {
+      width: 24px;
+      height: 24px;
+      color: white;
+      transition: transform 0.1s;
+    }
+
+    #layer-toggle {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      z-index: 10;
+      width: 48px;
+      height: 48px;
+      background: rgba(15, 15, 20, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      pointer-events: auto;
+      transition: background 0.2s;
+    }
+
+    #layer-toggle:hover {
+      background: rgba(25, 25, 30, 0.9);
+    }
+
+    /* Hide default Cesium UI elements and watermark */
+    .cesium-viewer-bottom {
+      display: none !important;
+    }
+
+    /* Custom attribution strip */
+    #custom-attribution {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 11px;
+      padding: 4px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+    }
+    #custom-attribution a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      pointer-events: auto;
+    }
+    #custom-attribution a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div id="cesiumContainer"></div>
+
+  <div id="app-header">
+    <div class="logo-area">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <h1>Geospatial Engine</h1>
+    </div>
+    <div id="coords-display">Lat: 0.00000°, Lon: 0.00000°, Alt: 0m</div>
+  </div>
+
+  <div id="search-container">
+    <input type="text" id="location-search" placeholder="Fly to location..." />
+    <button id="search-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div id="compass-container" title="Reset North">
+    <svg id="compass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 15.5 12 12 22 8.5 12 12 2" fill="currentColor"></polygon>
+      <polygon points="12 2 12 22 8.5 12 12 2" fill="rgba(255,255,255,0.5)"></polygon>
+    </svg>
+  </div>
+
+  <div id="layer-toggle" title="Toggle Base Layer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:white;">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </div>
+
+  <div id="custom-attribution">
+    <div>Unified Geospatial Radiance Field Engine</div>
+    <div>Map data &copy; <a href="https://cesium.com/" target="_blank">Cesium</a> &amp; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors</div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

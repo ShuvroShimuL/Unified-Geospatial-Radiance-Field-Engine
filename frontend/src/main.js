@@ -38,14 +38,128 @@ async function bootstrap() {
     console.error('Failed to authenticate with backend', e);
   }
 
+  // Update Coordinates and Compass Overlay
+  const coordsDisplay = document.getElementById('coords-display');
+  const compassIcon = document.getElementById('compass-icon');
+  viewer.scene.postRender.addEventListener(() => {
+    const position = viewer.camera.positionCartographic;
+    const lat = Cesium.Math.toDegrees(position.latitude).toFixed(5);
+    const lon = Cesium.Math.toDegrees(position.longitude).toFixed(5);
+    const alt = Math.round(position.height);
+    coordsDisplay.textContent = `Lat: ${lat}°, Lon: ${lon}°, Alt: ${alt}m`;
+
+    // Rotate compass
+    if (compassIcon) {
+      const heading = Cesium.Math.toDegrees(viewer.camera.heading);
+      compassIcon.style.transform = `rotate(${heading}deg)`;
+    }
+  });
+
+  // Compass Click: Reset North
+  const compassContainer = document.getElementById('compass-container');
+  if (compassContainer) {
+    compassContainer.addEventListener('click', () => {
+      const center = viewer.camera.position;
+      viewer.camera.flyTo({
+        destination: center,
+        orientation: {
+          heading: 0.0,
+          pitch: viewer.camera.pitch,
+          roll: 0.0
+        },
+        duration: 1.0
+      });
+    });
+  }
+
+  // Setup Search Bar
+  const searchInput = document.getElementById('location-search');
+  const searchBtn = document.getElementById('search-btn');
+
+  const performSearch = async () => {
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const results = await response.json();
+      if (results && results.length > 0) {
+        const result = results[0];
+        const lat = parseFloat(result.lat);
+        const lon = parseFloat(result.lon);
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(lon, lat, 2000),
+          duration: 2.0
+        });
+      } else {
+        alert("Location not found");
+      }
+    } catch (e) {
+      console.error("Search failed", e);
+    }
+  };
+
+  searchBtn.addEventListener('click', performSearch);
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') performSearch();
+  });
+
+  // Setup Layer Toggle (Satellite vs Night Mode)
+  const layerToggleBtn = document.getElementById('layer-toggle');
+  let isNightMode = false;
+  let defaultImagery = viewer.imageryLayers.get(0);
+  let nightImagery = null;
+
+  if (layerToggleBtn) {
+    layerToggleBtn.addEventListener('click', () => {
+      isNightMode = !isNightMode;
+      if (isNightMode) {
+        if (!nightImagery) {
+          nightImagery = new Cesium.ImageryLayer(new Cesium.IonImageryProvider({ assetId: 3812 })); // Cesium ion CartoDB Dark Matter
+          viewer.imageryLayers.add(nightImagery);
+        }
+        nightImagery.show = true;
+        if (defaultImagery) defaultImagery.show = false;
+
+        layerToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:white;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      } else {
+        if (nightImagery) nightImagery.show = false;
+        if (defaultImagery) defaultImagery.show = true;
+
+        layerToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; color:white;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      }
+    });
+  }
+
   // Setup click handler
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  let currentClickEntity = null;
+
   handler.setInputAction(async (click) => {
     // Raycast to find the clicked position on the globe
     const ray = viewer.camera.getPickRay(click.position);
     const position = viewer.scene.globe.pick(ray, viewer.scene);
 
     if (position) {
+      // Show glowing ring
+      if (currentClickEntity) {
+        viewer.entities.remove(currentClickEntity);
+      }
+
+      currentClickEntity = viewer.entities.add({
+        position: position,
+        ellipse: {
+          semiMinorAxis: 20.0,
+          semiMajorAxis: 20.0,
+          material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty((time, result) => {
+            const glow = 0.5 + 0.5 * Math.sin(time.secondsOfDay * 5.0);
+            return Cesium.Color.fromCssColorString('#00d2ff').withAlpha(glow * 0.6);
+          }, false)),
+          outline: true,
+          outlineColor: Cesium.Color.CYAN
+        }
+      });
+
       // Convert ECEF to Cartographic (WGS84)
       const cartographic = Cesium.Cartographic.fromCartesian(position);
       const lon = Cesium.Math.toDegrees(cartographic.longitude);
@@ -62,6 +176,19 @@ async function bootstrap() {
       }
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+  // Auto-hide navigation help panel after 5 seconds
+  setTimeout(() => {
+    // The actual button class is 'cesium-navigation-button' but it has a specific wrapper for state
+    const helpButton = document.querySelector('.cesium-navigationHelpButton-wrapper');
+    if (helpButton && !helpButton.classList.contains('cesium-navigationHelpButton-wrapper-hide')) {
+      // simulate a click to toggle it off if it's open
+      const btn = document.querySelector('.cesium-navigationHelpButton-wrapper .cesium-navigation-button');
+      if (btn && helpButton.style.display !== 'none' && document.querySelector('.cesium-navigation-help')) {
+         btn.click();
+      }
+    }
+  }, 5000);
 }
 
 bootstrap().catch(console.error);
