@@ -100,6 +100,24 @@
       background: rgba(255, 255, 255, 0.2);
     }
 
+    #search-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      position: absolute;
+      right: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    @keyframes spin {
+      to { transform: translateY(-50%) rotate(360deg); }
+    }
+
     /* Stacked Control Icons Container - Replacing direct absolute positioning */
     #controls-stack {
       position: absolute;
@@ -198,6 +216,7 @@
 
   <div id="search-container">
     <input type="text" id="location-search" placeholder="Fly to location..." />
+    <div id="search-spinner"></div>
     <button id="search-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"></circle>
@@ -232,6 +251,10 @@
   <div id="custom-attribution">
     <div>Unified Geospatial Radiance Field Engine</div>
     <div>Map data &copy; <a href="https://cesium.com/" target="_blank">Cesium</a> &amp; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors</div>
+  </div>
+
+  <div id="rag-toast" style="display: none; position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(15, 15, 20, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 10px 20px; color: white; font-size: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); z-index: 1500; pointer-events: none;">
+    Querying spatial intelligence...
   </div>
 
   <script type="module" src="/src/main.js"></script>

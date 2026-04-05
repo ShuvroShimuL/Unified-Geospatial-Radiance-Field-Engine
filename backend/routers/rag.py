@@ -16,11 +16,6 @@ class RagRequest(BaseModel):
 
 @router.post("/api/rag")
 async def rag_query(body: RagRequest, user=Depends(get_current_user), pool=Depends(get_pool)):
-    # Quick mock for testing without db/openai
-    if os.environ.get("OPENAI_API_KEY") == "dummy_key_for_testing":
-        response = f"Mock RAG response for coordinates {body.lat:.5f}, {body.lon:.5f}. The NDVI is 0.72 and the crop is rice."
-        return {"response": response, "cached": False}
-
     # 1. Check cache
     cached = cache_get(body.lat, body.lon, body.query)
     if cached:

@@ -10,7 +10,7 @@ from auth import router as auth_router
 from routers.splats import router as splats_router
 from routers.rag import router as rag_router
 
-app = FastAPI()
+app = FastAPI(docs_url="/docs")
 
 app.add_middleware(
     CORSMiddleware,
