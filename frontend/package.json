@@ -15,6 +15,7 @@
   "type": "commonjs",
   "dependencies": {
     "cesium": "^1.140.0",
+    "gsplat": "^1.2.9",
     "vite-plugin-cesium": "^1.2.23"
   },
   "devDependencies": {

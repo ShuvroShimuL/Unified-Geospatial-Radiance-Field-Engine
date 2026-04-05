@@ -11,11 +11,24 @@ export class Compositor {
 
     // Initialize the offscreen renderer at current resolution
     const canvas = viewer.canvas;
-    this.splatRenderer = new SplatRenderer(canvas.width, canvas.height);
-    this.lodManager = new LodManager(viewer, this.splatRenderer);
+    this.splatRenderer = new SplatRenderer();
+    this.splatRenderer.initialize(canvas.width, canvas.height).then(() => {
+      this.lodManager = new LodManager(viewer, this.splatRenderer);
 
-    this.initPostProcessStage();
-    this.bindEvents();
+      // Load the demo splat (garden) immediately to prove integration
+      const demoSplatData = {
+        id: 'garden_demo_01',
+        centroidECEF: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 10),
+        bbox: null,
+        url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai-7k.splat'
+      };
+
+      // Force LOD manager to load it
+      this.lodManager.loadSplatLOD(demoSplatData, 'high', 1.0);
+
+      this.initPostProcessStage();
+      this.bindEvents();
+    }).catch(console.error);
   }
 
   initPostProcessStage() {

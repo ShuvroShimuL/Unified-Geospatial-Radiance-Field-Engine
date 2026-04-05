@@ -232,8 +232,25 @@ async function bootstrap() {
         modeToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
       } else {
         viewer.scene.morphTo2D();
-        modeToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
+        modeToggleBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>`;
       }
+    });
+  }
+
+  // Fly to Demo Button
+  const demoFlyBtn = document.getElementById('demo-fly-btn');
+  if (demoFlyBtn) {
+    demoFlyBtn.addEventListener('click', () => {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 30.0),
+        orientation: {
+          heading: 0.0,
+          pitch: Cesium.Math.toRadians(-20.0),
+          roll: 0.0
+        },
+        duration: 3.0,
+        easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT
+      });
     });
   }
 

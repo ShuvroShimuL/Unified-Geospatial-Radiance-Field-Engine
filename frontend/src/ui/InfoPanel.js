@@ -1,3 +1,50 @@
+export function showSplatProgress(percent) {
+  let progressContainer = document.getElementById('splat-progress-container');
+  if (!progressContainer) {
+    progressContainer = document.createElement('div');
+    progressContainer.id = 'splat-progress-container';
+    progressContainer.style.position = 'absolute';
+    progressContainer.style.top = '80px';
+    progressContainer.style.left = '50%';
+    progressContainer.style.transform = 'translateX(-50%)';
+    progressContainer.style.backgroundColor = 'rgba(15, 15, 20, 0.8)';
+    progressContainer.style.backdropFilter = 'blur(8px)';
+    progressContainer.style.border = '1px solid rgba(0, 255, 255, 0.3)';
+    progressContainer.style.color = '#fff';
+    progressContainer.style.padding = '10px 20px';
+    progressContainer.style.borderRadius = '20px';
+    progressContainer.style.fontFamily = 'sans-serif';
+    progressContainer.style.fontSize = '14px';
+    progressContainer.style.zIndex = '1000';
+    progressContainer.style.display = 'flex';
+    progressContainer.style.alignItems = 'center';
+    progressContainer.style.gap = '10px';
+    document.body.appendChild(progressContainer);
+  }
+
+  progressContainer.style.display = 'flex';
+
+  if (percent >= 100) {
+    progressContainer.innerHTML = `<span style="color: #0ff;">✓</span> Gaussian Splat Loaded`;
+    setTimeout(() => {
+      progressContainer.style.display = 'none';
+    }, 3000);
+  } else {
+    progressContainer.innerHTML = `
+      <div style="width: 16px; height: 16px; border: 2px solid rgba(0,255,255,0.3); border-top: 2px solid #0ff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      Loading Splat: ${percent.toFixed(0)}%
+    `;
+
+    // Add keyframes if not exists
+    if (!document.getElementById('spinner-style')) {
+      const style = document.createElement('style');
+      style.id = 'spinner-style';
+      style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+      document.head.appendChild(style);
+    }
+  }
+}
+
 export class InfoPanel {
   constructor(containerId) {
     this.container = document.getElementById(containerId);

@@ -70,6 +70,26 @@ export async function initViewer(containerId) {
   //    }
   // }
 
+  // Add splat demo indicator
+  viewer.entities.add({
+    position: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 10.0), // Approximate altitude
+    ellipse: {
+      semiMinorAxis: 100.0,
+      semiMajorAxis: 100.0,
+      material: new Cesium.ColorMaterialProperty(new Cesium.Color(0.0, 1.0, 1.0, 0.3)), // Cyan glow
+      outline: true,
+      outlineColor: Cesium.Color.CYAN
+    },
+    label: {
+      text: "Gaussian Splat Demo\n(Garden Scene)",
+      font: '14pt sans-serif',
+      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      outlineWidth: 2,
+      verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+      pixelOffset: new Cesium.Cartesian2(0, -20)
+    }
+  });
+
   // Set initial far camera position (space)
   viewer.camera.setView({
     destination: Cesium.Cartesian3.fromDegrees(90.4125, 23.8103, 10000000.0),

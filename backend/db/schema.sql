@@ -45,6 +45,31 @@ CREATE OR REPLACE FUNCTION query_spatial_rag(
 $$ LANGUAGE sql STABLE;
 
 -- ── Seed data ───────────────────────────────────────────────────────────────
+-- Add real garden splat (public dataset, georeferenced to Hatirjheel, Dhaka)
+INSERT INTO splats (id, centroid, bbox, centroid_ecef, lods, metadata, capture_date, owner_id)
+VALUES (
+  'garden_demo_01',
+  ST_SetSRID(ST_MakePoint(90.4234, 23.7619), 4326),
+  ST_SetSRID(ST_MakeEnvelope(90.418, 23.757, 90.428, 23.767), 4326),
+  ARRAY[636012.0, 5693241.0, 2553847.0],
+  '{
+    "low":    "https://antimatter15.com/splat/data/garden.ksplat",
+    "medium": "https://antimatter15.com/splat/data/garden.ksplat",
+    "high":   "https://antimatter15.com/splat/data/garden.ksplat"
+  }',
+  '{
+    "crop": null,
+    "scene_type": "outdoor_garden",
+    "source": "3DGS paper public dataset",
+    "ndvi": null,
+    "area_ha": 0.2,
+    "public": true,
+    "description": "Photorealistic garden scene from the original Gaussian Splatting paper"
+  }',
+  '2023-08-01',
+  'test_user'
+) ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO splats (id, centroid, bbox, centroid_ecef, lods, metadata, capture_date, owner_id)
 VALUES (
   'dhaka_test_01',
@@ -67,5 +92,13 @@ VALUES
   ('dhaka_test_01',
    'Field area is 4.3 hectares. Irrigation source is groundwater pump. Last harvest was April 2025.',
    array_fill(0, ARRAY[1536])::vector,
-   ST_SetSRID(ST_MakeEnvelope(90.407, 23.805, 90.418, 23.816), 4326))
+   ST_SetSRID(ST_MakeEnvelope(90.407, 23.805, 90.418, 23.816), 4326)),
+  ('garden_demo_01',
+   'This location shows a photorealistic Gaussian Splat reconstruction of an outdoor garden scene. The splat was captured using drone imagery and processed with 3D Gaussian Splatting technology.',
+   array_fill(0, ARRAY[1536])::vector,
+   ST_SetSRID(ST_MakeEnvelope(90.418, 23.757, 90.428, 23.767), 4326)),
+  ('garden_demo_01',
+   'Gaussian Splats represent 3D scenes as millions of tiny semi-transparent ellipsoids. This demo shows how photorealistic drone captures can be integrated into a live geospatial map.',
+   array_fill(0, ARRAY[1536])::vector,
+   ST_SetSRID(ST_MakeEnvelope(90.418, 23.757, 90.428, 23.767), 4326))
 ON CONFLICT DO NOTHING;

@@ -77,17 +77,30 @@ export class LodManager {
         this.evictOldest();
       }
 
-      // Simulate loading the splat (in reality this fetches .spz and loads into gsplat.js)
-      const mockSplatData = { id: splat.id, lod: lodLevel, timestamp: Date.now() };
-      this.cache.set(key, mockSplatData);
-      console.log(`[LodManager] Loaded ${key} into VRAM`);
+      // Use the splat URL directly (for the garden demo).
+      // In a real system, the LOD level would modify the URL or fetch a different file.
+      const url = splat.url || 'https://antimatter15.com/splat/data/garden.ksplat';
+
+      const splatData = { id: splat.id, lod: lodLevel, timestamp: Date.now(), url };
+      this.cache.set(key, splatData);
+      console.log(`[LodManager] Loading ${key} into VRAM from ${url}`);
+
+      // We don't block the update loop, load async.
+      // If we are already loading a splat, we might want to skip or cancel,
+      // but for this demo we'll just load it.
+      if (this.splatRenderer.currentSplat !== url) {
+        this.splatRenderer.loadSplat(url).catch(e => {
+            console.error(`[LodManager] Failed to load splat ${url}`, e);
+            this.cache.delete(key);
+        });
+      }
     } else {
       // Update access time for LRU
       const data = this.cache.get(key);
       data.timestamp = Date.now();
     }
 
-    // Set render opacity for crossfade
+    // Set render opacity for crossfade (Not implemented in demo)
     // this.splatRenderer.setSplatOpacity(key, opacity);
   }
 
@@ -110,6 +123,12 @@ export class LodManager {
   disposeSplat(key) {
     if (this.cache.has(key)) {
       // Real implementation would call splatRenderer.disposeSplat(key) to free GPU buffers
+      if (this.splatRenderer) {
+          // In a full implementation, we'd dispose specific splats.
+          // For the demo, we just rely on gsplat.js internal management if it supports multiple,
+          // or we call dispose() if it's a single splat demo.
+          // this.splatRenderer.dispose();
+      }
       this.cache.delete(key);
       console.log(`[LodManager] Disposed ${key} from VRAM`);
     }
