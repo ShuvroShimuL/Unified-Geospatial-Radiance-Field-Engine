@@ -45,6 +45,46 @@ npm install
 npm run dev
 ```
 
+## How It Works
+
+### Gaussian Splatting
+Gaussian Splatting represents a 3D scene as millions of tiny semi-transparent
+ellipsoids (splats), each with a position, color, opacity, and shape. When you
+zoom into a splat zone on the map, the viewer streams the `.ksplat` file and
+renders these ellipsoids sorted by depth — producing photorealistic imagery
+that looks like a real drone photo.
+
+The splat renderer runs on an `OffscreenCanvas` with its own WebGL2 context,
+then composites the output into the Cesium scene via a `PostProcessStage` with
+log-to-linear depth conversion to ensure correct occlusion with 3D buildings.
+
+### Spatial RAG
+When you click anywhere on the map, the app:
+1. Converts the screen click → world coordinates → WGS84 lat/lon
+2. Queries Supabase PostGIS to find splat metadata within ~500m
+3. Embeds your query using OpenAI `text-embedding-3-small` (1536-dim)
+4. Runs a vector similarity search against `spatial_docs` via pgvector
+5. Passes the retrieved context chunks to `gpt-4o-mini` via LangChain
+6. Returns a context-aware response about what's at that location
+
+### Coordinate Precision
+All global positions are stored in ECEF (Earth-Centered Earth-Fixed) as
+`float64`. Only a small residual (camera − splat center) is passed to the
+GPU as `float32`, keeping errors below 1mm at any location on Earth.
+
+## Demo
+1. Open the app and wait for the fly-in animation to Dhaka
+2. Type `23.7619, 90.4234` in the search bar — or click "📷 View Splat Demo"
+3. Fly toward the cyan ring at Hatirjheel Lake
+4. Watch the progress bar as the Gaussian Splat streams in (~30–60s on first load)
+5. Click anywhere to query the Spatial RAG engine
+
+## Testing
+```bash
+cd backend
+pytest tests/ -v
+```
+
 ## Repository Structure
 
 - `frontend/`: Vite application with Cesium compositing placeholder logic.

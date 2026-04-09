@@ -88,7 +88,7 @@ export class LodManager {
       // We don't block the update loop, load async.
       // If we are already loading a splat, we might want to skip or cancel,
       // but for this demo we'll just load it.
-      if (this.splatRenderer.currentSplat !== url) {
+      if (this.splatRenderer.loadedUrl !== url) {
         this.splatRenderer.loadSplat(url).catch(e => {
             console.error(`[LodManager] Failed to load splat ${url}`, e);
             this.cache.delete(key);

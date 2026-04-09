@@ -2,13 +2,18 @@ import * as SPLAT from 'gsplat';
 
 export class SplatRenderer {
   constructor() {
-    this.renderer = null;
-    this.scene = null;
-    this.camera = null;
-    this.controls = null;
-    this.canvas = null;
+    this.renderer   = null;
+    this.scene      = null;
+    this.camera     = null;
+    this.canvas     = null;
     this.isInitialized = false;
-    this.currentSplat = null;
+    this.loadedUrl  = null;
+    this.isLoading  = false;
+    this._onProgress = null;
+  }
+
+  onProgress(callback) {
+    this._onProgress = callback;
   }
 
   async initialize(width, height) {
@@ -35,20 +40,29 @@ export class SplatRenderer {
     console.log('SplatRenderer initialized with gsplat.js');
   }
 
-  async loadSplat(url, onProgress) {
-    console.log(`Loading splat from: ${url}`);
+  async loadSplat(url) {
+    if (this.isLoading) return;
+    if (this.loadedUrl === url) return; // already loaded
+    this.isLoading = true;
+    console.log(`[SplatRenderer] Loading: ${url}`);
     try {
-      // Create a specific format parameter if it's .splat
-      const format = url.endsWith('.splat') ? SPLAT.SplatFormat : undefined;
+      // Clear previous scene
+      this.scene = new SPLAT.Scene();
+
       await SPLAT.Loader.LoadAsync(url, this.scene, (progress) => {
-        console.log(`Splat loading: ${(progress * 100).toFixed(1)}%`);
-        if (onProgress) onProgress(progress * 100);
-      }, format);
-      console.log('Splat loaded successfully');
-      this.currentSplat = url;
-    } catch (error) {
-      console.error('Failed to load splat:', error);
-      throw error;
+        if (this._onProgress) this._onProgress(progress);
+        console.log(`[SplatRenderer] ${(progress * 100).toFixed(1)}%`);
+      });
+      this.loadedUrl = url;
+      console.log('[SplatRenderer] Loaded successfully');
+    } catch (err) {
+      console.error('[SplatRenderer] Load failed:', err);
+      // Fallback: reset scene so compositor gets empty output (no crash)
+      this.scene = new SPLAT.Scene();
+      this.loadedUrl = null;
+      throw err;
+    } finally {
+      this.isLoading = false;
     }
   }
 

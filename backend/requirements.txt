@@ -9,3 +9,5 @@ langchain-openai
 upstash-redis
 boto3
 python-dotenv
+pytest
+httpx
